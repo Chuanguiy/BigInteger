@@ -2,7 +2,7 @@
 #define BIGINTEGER
 #include "string"
 #include "vector"
-
+using namespace std;
 
 //100000000进制大整数
 //把大整数分段存储，每一段的宽度是WIDTH，用容器vector<int> s倒序存储每一段的数值
