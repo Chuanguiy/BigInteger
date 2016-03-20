@@ -2,7 +2,6 @@
 #define BIGINTEGER
 #include "string"
 #include "vector"
-using namespace std;
 
 //100000000进制大整数
 //把大整数分段存储，每一段的宽度是WIDTH，用容器vector<int> s倒序存储每一段的数值
@@ -24,10 +23,10 @@ public:
 	BigInt(const std::string &str) { negative=0;*this = str;}
 	BigInt(const BigInt &a) { *this=a;}
 	BigInt& operator = (const BigInt &);
-	BigInt& operator = (const string &);
+	BigInt& operator = (const std::string &);
 	BigInt& operator = (long long );
-	friend ostream& operator << (ostream &, const BigInt &);
-	friend istream& operator >> (istream &, BigInt &);
+	friend std::ostream& operator << (std::ostream &, const BigInt &);
+	friend std::istream& operator >> (std::istream &, BigInt &);
 	BigInt operator - () const;
 	BigInt operator + (const BigInt &) const;
 	BigInt operator - (const BigInt &) const;
