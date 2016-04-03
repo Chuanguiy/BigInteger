@@ -252,35 +252,51 @@ BigInt BigInt::operator / (const BigInt &b) const {
 		cout<<"div zero!"<<endl;
 		return 0;
 	}
-	else if(b==1)
-		return *this;
 	if(*this < b)
 		return 0;
 	BigInt res,remain;
 	//默认构造函数 构造为正0
 	res.s.clear();
-	int len=s.size();
 	remain.s.clear();
 	remain.negative=0;
-	for(int i=len-1; i>=0; i--) {
-		//每趟余数不会比b多8位以上，int可以胜任
+	for(int i=s.size()-1; i>=0; i--) {
+		//每趟余数不会比b多8位以上，r 一定是int范围内的整数
 		int r=0;
 		remain.s.push_back(s[i]);
-		int len_re=remain.s.size();
-		while(len_re-->1) {
-			remain.s[len_re]=remain.s[len_re-1];
+		int len=remain.s.size();
+		while(len-->1) {
+			remain.s[len] = remain.s[len-1];
 		}
-		remain.s[0]=s[i];
+		remain.s[0] = s[i];
 		while(remain >= b) {
-			r++;
-			remain -= b;
+			int btmp = 1<<31-1;
+			//b是int范围内的整数，避免b太小导致调用减法次数过多
+			if(b.s.size() == 1)
+				btmp = b.s[0];
+			if(remain.s[0] > btmp) {
+				//tp*b是被减数
+				int tp = remain.s[0]/btmp;
+				if(tp == 0) 
+					tp = 1;
+				while(remain >= btmp) {
+					if(remain >= tp*btmp) {
+						remain -= tp*btmp;
+						r+=tp;
+					}
+					else
+						tp=(tp/10)?(tp/10):1;
+				}
+			}
+			else {
+				r++;
+				remain -= b;
+			}
 		}
 		res.s.push_back(r);
 		if(remain==0)
 			remain.s.clear();
 	}
-	len = res.s.size();
-	for(int i=0,j=len-1;i<j;i++,j--) {
+	for(int i=0, j=res.s.size()-1 ; i<j; i++,j--) {
 		int tmp=res.s[i];
 		res.s[i]=res.s[j];
 		res.s[j]=tmp;
@@ -302,35 +318,47 @@ bool BigInt::operator !() const {
 
 
 BigInt BigInt::operator % (const BigInt &b) const{
-	if(b==0 || b==1) {
-		if(b==0)
-			cout<<"div zero!"<<endl;
+	if(b==0) {
+		cout<<"div zero!"<<endl;
 		return 0;
 	}
 	if(*this < b)
 		return *this;
 	BigInt remain;
 	//默认构造函数 构造为正0
-	int len=s.size();
 	remain.s.clear();
 	remain.negative=0;
-	for(int i=len-1; i>=0; i--) {
-		//每趟余数不会比b多8位以上，int可以胜任
-		int r=0,tmp;
-		//清除首位的0
+	for(int i=s.size()-1; i>=0; i--) {
 		remain.s.push_back(s[i]);
-		int len_re=remain.s.size();
-		while(len_re-->1) {
-			remain.s[len_re]=remain.s[len_re-1];
+		int len=remain.s.size();
+		while(len-- > 1) {
+			remain.s[len] = remain.s[len-1];
 		}
-		remain.s[0]=s[i];
+		remain.s[0] = s[i];
 		remain.clearZero();
 		while(remain >= b) {
-			r++;
-			remain -= b;
+			int btmp = 1<<31-1;
+			//b是int范围内的整数，避免b太小导致调用减法次数过多
+			if(b.s.size() == 1)
+				btmp = b.s[0];
+			if(remain.s[0] > btmp) {
+				//tp*b是被减数
+				int tp = remain.s[0]/btmp;
+				if(tp == 0) 
+					tp = 1;
+				while(remain >= btmp) {
+					if(remain >= tp*btmp) {
+						remain -= tp*btmp;
+					}
+					else
+						tp=(tp/10)?(tp/10):1;
+				}
+			}
+			else {
+				remain -= b;
+			}
 		}
 	}
-
 	return remain;
 }
 
@@ -471,3 +499,19 @@ void BigInt::printVector() {
 	cout<<s[len-1]<<endl;
 }
 
+
+string BigInt::tostring() const{
+	ostringstream out;
+	out.clear();
+	int len=s.size();
+	if(negative)
+		out<<'-';
+	out<<s.back(); //最高位不填充0
+	for(int i=len-2;i>=0;i--) {
+		char buf[16];
+		//每一段长度为8，长度不足8则在首部填充0
+		sprintf(buf,"%08d",s[i]);
+		out<<buf; 
+	}
+	return out.str();
+}
