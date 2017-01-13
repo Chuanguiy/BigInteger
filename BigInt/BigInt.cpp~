@@ -30,9 +30,9 @@ BigInt& BigInt::operator = (const string &str) {
 	if(legal(str)) {
 		s.clear();
 		int x,len=(str.length()-1)/WIDTH+1;
-		negative=(str[0]=='-');
 		if(str=="-0") //避免负零出现
 			negative=0;
+		negative=(str[0]=='-');
 		int ss=negative;
 		for(int i=0;i<len;i++) {
 			//begin with lowest 8 nums
