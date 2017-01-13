@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "BigInt.h"
 #include "iostream"
 #include "algorithm"
